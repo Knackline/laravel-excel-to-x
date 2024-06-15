@@ -2,42 +2,41 @@
 
 namespace Knackline\ExcelTo;
 
-use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class ExcelTo
 {
 
     public static function json($filePath)
     {
-        // Read the Excel data into an array
-        $excelData = Excel::toArray([], $filePath)[0];
-
-        // Extract the header from the data
+        $spreadsheet = IOFactory::load($filePath);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $excelData = $worksheet->toArray();
         $header = array_shift($excelData);
 
-        // Initialize an empty array to hold the processed data
         $jsonData = [];
-
-        // Iterate through each row of data
-        foreach ($excelData as $row) {
+        foreach ($excelData as $rowIndex => $row) {
             $rowData = [];
-            foreach ($header as $key => $columnName) {
-                // Check if the column name is "Date" and the value is numeric
-                if (($columnName === 'date' || $columnName === 'Date') && is_numeric($row[$key])) {
-                    // Convert Excel date to a formatted date string
-                    $rowData[$columnName] = Date::excelToDateTimeObject($row[$key])->format('Y-m-d'); // Format as needed
-                } else {
-                    $rowData[$columnName] = $row[$key];
+            foreach ($header as $colIndex => $columnName) {
+                // Convert column index to letter (A, B, C, ...)
+                $columnLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
+                $cellAddress = $columnLetter . ($rowIndex + 2);
+                $cell = $worksheet->getCell($cellAddress);
+                $value = $cell->getValue();
+                $isDate = Date::isDateTime($cell);
+
+                if ($isDate && is_numeric($value)) {
+                    $value = Date::excelToDateTimeObject($value)->format('d/m/Y');
                 }
+
+                $rowData[$columnName] = $value;
             }
             $jsonData[] = $rowData;
         }
 
-        // Encode the array into JSON format
         $json = json_encode($jsonData);
-
-        // Decode the JSON back to an array for returning
         $decodedJson = json_decode($json, true);
 
         return $decodedJson;
@@ -45,19 +44,27 @@ class ExcelTo
 
     public static function collection($filePath)
     {
-        $excelData = Excel::toArray([], $filePath)[0];
+        $spreadsheet = IOFactory::load($filePath);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $excelData = $worksheet->toArray();
         $header = array_shift($excelData);
 
         $collection = collect();
-        foreach ($excelData as $row) {
+        foreach ($excelData as $rowIndex => $row) {
             $rowData = [];
-            foreach ($header as $key => $columnName) {
-                // Check if the column name is "Date" and the value is numeric
-                if (($columnName === 'date' || $columnName === 'Date') && is_numeric($row[$key])) {
-                    $rowData[$columnName] = Date::excelToDateTimeObject($row[$key])->format('Y-m-d'); // Format as needed
-                } else {
-                    $rowData[$columnName] = $row[$key];
+            foreach ($header as $colIndex => $columnName) {
+                // Convert column index to letter (A, B, C, ...)
+                $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+                $cellAddress = $columnLetter . ($rowIndex + 2);
+                $cell = $worksheet->getCell($cellAddress);
+                $value = $cell->getValue();
+                $isDate = Date::isDateTime($cell);
+
+                if ($isDate && is_numeric($value)) {
+                    $value = Date::excelToDateTimeObject($value)->format('d/m/Y');
                 }
+
+                $rowData[$columnName] = $value;
             }
             $collection->push($rowData);
         }
