@@ -7,7 +7,7 @@ This Laravel package provides utilities for converting Excel files to JSON forma
 You can install the package via Composer:
 
 ```bash
-composer require knackline/excel-to
+composer require knackline/excel-to-x
 ```
 
 ## Usage
