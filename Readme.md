@@ -80,3 +80,16 @@ Contributions are welcome! Feel free to submit pull requests or open an issue if
 ## License
 
 This package is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+### Key Updates:
+1. **Support for Multiple Sheets:** 
+   - Described how the package handles multiple sheets, with data organized by sheet names.
+
+2. **Array Conversion:**
+   - Added a new section for array conversion, including an example of how to use the new `array` method.
+
+3. **Clarified Output Format:**
+   - Explained the structure of the data returned by each method, emphasizing the handling of single vs. multiple sheets.
+
+Feel free to modify any section further if you have additional details or preferences for the README content.
