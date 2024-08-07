@@ -8,7 +8,6 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class ExcelTo
 {
-
     public static function json($filePath)
     {
         $spreadsheet = IOFactory::load($filePath);
@@ -47,6 +46,25 @@ class ExcelTo
         }
 
         return $collection;
+    }
+
+    public static function array($filePath)
+    {
+        $spreadsheet = IOFactory::load($filePath);
+        $sheetCount = $spreadsheet->getSheetCount();
+        $arrayData = [];
+
+        foreach ($spreadsheet->getAllSheets() as $worksheet) {
+            $sheetData = self::processSheet($worksheet);
+
+            if ($sheetCount > 1) {
+                $arrayData[$worksheet->getTitle()] = $sheetData;
+            } else {
+                $arrayData = $sheetData;
+            }
+        }
+
+        return $arrayData;
     }
 
     private static function processSheet($worksheet)
