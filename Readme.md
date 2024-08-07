@@ -1,6 +1,6 @@
-# Laravel Excel to JSON / Collection
+# Laravel Excel to JSON / Collection / Array
 
-This Laravel package provides utilities for converting Excel files to JSON format or Laravel Collections.
+This Laravel package provides utilities for converting Excel files to JSON format, Laravel Collections, or PHP Arrays. It also supports reading data from multiple sheets within an Excel file.
 
 ## Installation
 
@@ -22,7 +22,7 @@ use Knackline\ExcelTo\ExcelTo;
 $jsonData = ExcelTo::json('path/to/your/excel_file.xlsx');
 ```
 
-This will return an associative array representing the Excel data in JSON format.
+This will return a JSON-encoded string representing the Excel data. If the Excel file contains multiple sheets, the data will be organized by sheet names.
 
 ### Collection Conversion
 
@@ -34,7 +34,19 @@ use Knackline\ExcelTo\ExcelTo;
 $collection = ExcelTo::collection('path/to/your/excel_file.xlsx');
 ```
 
-This will return a Laravel Collection containing the Excel data.
+This will return a Laravel Collection containing the Excel data. When multiple sheets are present, each sheet's data will be a collection keyed by the sheet name.
+
+### Array Conversion
+
+To convert an Excel file to a PHP Array, use the `array` method of the `ExcelTo` class:
+
+```php
+use Knackline\ExcelTo\ExcelTo;
+
+$arrayData = ExcelTo::array('path/to/your/excel_file.xlsx');
+```
+
+This will return a PHP array containing the Excel data. Similar to JSON and Collection, multiple sheets will be keyed by their names.
 
 ## Example
 
@@ -46,11 +58,16 @@ $jsonData = ExcelTo::json('path/to/your/excel_file.xlsx');
 
 // Convert Excel to Collection
 $collection = ExcelTo::collection('path/to/your/excel_file.xlsx');
+
+// Convert Excel to Array
+$arrayData = ExcelTo::array('path/to/your/excel_file.xlsx');
 ```
 
 ## Requirements
 
 - PHP >= 8.2
+- Laravel >= 8.x
+- PhpSpreadsheet >= 1.20
 
 ## Author
 
@@ -63,7 +80,3 @@ Contributions are welcome! Feel free to submit pull requests or open an issue if
 ## License
 
 This package is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
----
-
-Feel free to customize the content further if needed. Let me know if there's anything else I can assist you with!
