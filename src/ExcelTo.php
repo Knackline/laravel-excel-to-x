@@ -12,11 +12,49 @@ class ExcelTo
     public static function json($filePath)
     {
         $spreadsheet = IOFactory::load($filePath);
-        $worksheet = $spreadsheet->getActiveSheet();
+        $sheetCount = $spreadsheet->getSheetCount();
+        $jsonData = [];
+
+        foreach ($spreadsheet->getAllSheets() as $worksheet) {
+            $sheetData = self::processSheet($worksheet);
+
+            if ($sheetCount > 1) {
+                $jsonData[$worksheet->getTitle()] = $sheetData;
+            } else {
+                $jsonData = $sheetData;
+            }
+        }
+
+        $json = json_encode($jsonData);
+
+        return $json;
+    }
+
+    public static function collection($filePath)
+    {
+        $spreadsheet = IOFactory::load($filePath);
+        $sheetCount = $spreadsheet->getSheetCount();
+        $collection = collect();
+
+        foreach ($spreadsheet->getAllSheets() as $worksheet) {
+            $sheetData = self::processSheet($worksheet);
+
+            if ($sheetCount > 1) {
+                $collection->put($worksheet->getTitle(), collect($sheetData));
+            } else {
+                $collection = collect($sheetData);
+            }
+        }
+
+        return $collection;
+    }
+
+    private static function processSheet($worksheet)
+    {
         $excelData = $worksheet->toArray();
         $header = array_shift($excelData);
+        $sheetData = [];
 
-        $jsonData = [];
         foreach ($excelData as $rowIndex => $row) {
             $rowData = [];
             foreach ($header as $colIndex => $columnName) {
@@ -33,42 +71,9 @@ class ExcelTo
 
                 $rowData[$columnName] = $value;
             }
-            $jsonData[] = $rowData;
+            $sheetData[] = $rowData;
         }
 
-        $json = json_encode($jsonData);
-        $decodedJson = json_decode($json, true);
-
-        return $decodedJson;
-    }
-
-    public static function collection($filePath)
-    {
-        $spreadsheet = IOFactory::load($filePath);
-        $worksheet = $spreadsheet->getActiveSheet();
-        $excelData = $worksheet->toArray();
-        $header = array_shift($excelData);
-
-        $collection = collect();
-        foreach ($excelData as $rowIndex => $row) {
-            $rowData = [];
-            foreach ($header as $colIndex => $columnName) {
-                // Convert column index to letter (A, B, C, ...)
-                $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
-                $cellAddress = $columnLetter . ($rowIndex + 2);
-                $cell = $worksheet->getCell($cellAddress);
-                $value = $cell->getValue();
-                $isDate = Date::isDateTime($cell);
-
-                if ($isDate && is_numeric($value)) {
-                    $value = Date::excelToDateTimeObject($value)->format('d/m/Y');
-                }
-
-                $rowData[$columnName] = $value;
-            }
-            $collection->push($rowData);
-        }
-
-        return $collection;
+        return $sheetData;
     }
 }
