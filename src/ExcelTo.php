@@ -76,17 +76,29 @@ class ExcelTo
 
     private static function processSheet($worksheet): array
     {
-        $excelData = $worksheet->toArray();
+        $excelData = $worksheet->toArray(null, true, true, true); // Load with nulls
+        $mergedCells = $worksheet->getMergeCells(); // Get merged cells info
         $header = array_shift($excelData);
         $sheetData = [];
 
         foreach ($excelData as $rowIndex => $row) {
             $rowData = [];
+
             foreach ($header as $colIndex => $columnName) {
-                $columnLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
+                $columnLetter = $colIndex; // PhpSpreadsheet uses lettered indexes
                 $cellAddress = $columnLetter . ($rowIndex + 2);
+
+                // Check if the cell is part of a merged range
+                $value = $worksheet->getCell($cellAddress)->getCalculatedValue();
+                foreach ($mergedCells as $range) {
+                    if (self::isCellInRange($cellAddress, $range)) {
+                        $value = $worksheet->getCell(explode(':', $range)[0])->getCalculatedValue();
+                        break;
+                    }
+                }
+
+                // Handle date values
                 $cell = $worksheet->getCell($cellAddress);
-                $value = $cell->getCalculatedValue();
                 $isDate = Date::isDateTime($cell);
 
                 if ($isDate && is_numeric($value)) {
@@ -95,9 +107,20 @@ class ExcelTo
 
                 $rowData[$columnName] = $value;
             }
+
             $sheetData[] = $rowData;
         }
 
         return $sheetData;
+    }
+
+    private static function isCellInRange(string $cellAddress, string $range): bool
+    {
+        [$startCell, $endCell] = explode(':', $range);
+        [$startCol, $startRow] = Coordinate::coordinateFromString($startCell);
+        [$endCol, $endRow] = Coordinate::coordinateFromString($endCell);
+        [$col, $row] = Coordinate::coordinateFromString($cellAddress);
+
+        return $row >= $startRow && $row <= $endRow && $col >= $startCol && $col <= $endCol;
     }
 }
