@@ -1,12 +1,12 @@
 <?php
 
-namespace Knackline\ExcelTo\Tests\Feature;
+namespace Tests\Feature;
 
 use Knackline\ExcelTo\ExcelTo;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Support\Collection;
 
-class ExcelToBasicFeatureTest extends TestCase
+class ExcelToTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -76,13 +76,14 @@ class ExcelToBasicFeatureTest extends TestCase
         $data = json_decode($result, true);
 
         $this->assertIsArray($data);
-        $this->assertCount(2, $data);
+        $this->assertArrayHasKey('Sheet1', $data);
+        $this->assertCount(2, $data['Sheet1']);
         $this->assertEquals([
             'First Name' => 'John',
             'Last Name' => 'Doe',
             'Age' => '30',
             'Date' => '2023-01-01'
-        ], $data[0]);
+        ], $data['Sheet1'][0]);
     }
 
     public function test_json_conversion_multiple_sheets()
@@ -142,15 +143,24 @@ class ExcelToBasicFeatureTest extends TestCase
     {
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('MergedSheet');
 
         // Set up merged cells with header row
         $sheet->setCellValue('A1', 'Header1');
-        $sheet->setCellValue('B1', 'Header2');
+        $sheet->setCellValue('C1', 'Header2');
         $sheet->setCellValue('A2', 'Value 1');
-        $sheet->setCellValue('B2', 'Value 2');
-        $sheet->mergeCells('A1:B1');
+        $sheet->setCellValue('C2', 'Value 2');
+        $sheet->mergeCells('A1:B1');  // Merge Header1 across two columns
+        $sheet->mergeCells('C1:D1');  // Merge Header2 across two columns
 
         $mergedFilePath = __DIR__ . '/../test_files/test_merged.xlsx';
+
+        // Create directory if it doesn't exist
+        $dir = dirname($mergedFilePath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save($mergedFilePath);
 
@@ -158,9 +168,10 @@ class ExcelToBasicFeatureTest extends TestCase
         $data = json_decode($result, true);
 
         $this->assertIsArray($data);
-        $this->assertCount(1, $data);
-        $this->assertEquals('Value 1', $data[0]['Header1']);
-        $this->assertEquals('Value 2', $data[0]['Header2']);
+        $this->assertArrayHasKey('MergedSheet', $data);
+        $this->assertCount(1, $data['MergedSheet']);
+        $this->assertEquals('Value 1', $data['MergedSheet'][0]['Header1']);
+        $this->assertEquals('Value 2', $data['MergedSheet'][0]['Header2']);
 
         unlink($mergedFilePath);
     }
