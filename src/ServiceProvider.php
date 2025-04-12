@@ -6,15 +6,17 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class ServiceProvider extends BaseServiceProvider
 {
-    public function boot()
-    {
-        // Optionally, you might want to publish configuration files or other assets here.
-    }
-
     public function register()
     {
-        $this->app->singleton('excel-to-x', function () {
+        $this->app->singleton(ExcelTo::class, function ($app) {
             return new ExcelTo();
         });
+    }
+
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__ . '/../config/excel-to.php' => config_path('excel-to.php'),
+        ], 'config');
     }
 }
