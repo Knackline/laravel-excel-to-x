@@ -57,14 +57,12 @@ class ExcelToStreamingFeatureTest extends TestCase
         $result = ExcelTo::stream($this->getTestFilePath(), 1);
 
         $this->assertIsArray($result);
-        $this->assertArrayHasKey('Sheet1', $result);
-        $this->assertCount(1, $result['Sheet1']);
         $this->assertEquals([
             'First Name' => 'John',
             'Last Name' => 'Doe',
             'Age' => '30',
             'Date' => '2023-01-01'
-        ], $result['Sheet1'][0]);
+        ], $result[0]);
     }
 
     public function test_stream_handles_custom_chunk_size()
@@ -72,8 +70,7 @@ class ExcelToStreamingFeatureTest extends TestCase
         $result = ExcelTo::stream($this->getTestFilePath(), 2);
 
         $this->assertIsArray($result);
-        $this->assertArrayHasKey('Sheet1', $result);
-        $this->assertCount(1, $result['Sheet1']);
+        $this->assertCount(1, $result);
     }
 
     public function test_stream_handles_empty_sheets()

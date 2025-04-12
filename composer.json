@@ -1,23 +1,29 @@
 {
   "name": "knackline/excel-to-x",
-  "description": "Laravel Package that converts excel to JSON/collection",
+  "description": "Laravel package for converting Excel files to various formats",
+  "type": "library",
+  "require": {
+    "php": "^8.2",
+    "phpoffice/phpspreadsheet": "^1.29",
+    "illuminate/support": "^10.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
+  },
   "license": "MIT",
   "autoload": {
     "psr-4": {
       "Knackline\\ExcelTo\\": "src/"
     }
   },
-  "authors": [
-    {
-      "name": "RAJKUMAR SAMRA",
-      "email": "rajkumarsamra@gmail.com"
+  "autoload-dev": {
+    "psr-4": {
+      "Knackline\\ExcelTo\\Tests\\": "tests/"
     }
-  ],
-  "require": {
-    "php": "^8.2",
-    "phpoffice/phpspreadsheet": "^1.29"
   },
-  "require-dev": {
-    "phpunit/phpunit": "^9.5"
-  }
+  "authors": [{
+    "name": "Rajkumar Samra",
+    "email": "rajkumar.samra@gmail.com"
+  }],
+  "minimum-stability": "stable"
 }

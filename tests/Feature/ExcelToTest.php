@@ -143,7 +143,9 @@ class ExcelToBasicFeatureTest extends TestCase
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $sheet->setCellValue('A1', 'Header');
+        // Set up merged cells with header row
+        $sheet->setCellValue('A1', 'Header1');
+        $sheet->setCellValue('B1', 'Header2');
         $sheet->setCellValue('A2', 'Value 1');
         $sheet->setCellValue('B2', 'Value 2');
         $sheet->mergeCells('A1:B1');
@@ -157,7 +159,8 @@ class ExcelToBasicFeatureTest extends TestCase
 
         $this->assertIsArray($data);
         $this->assertCount(1, $data);
-        $this->assertEquals('Header', $data[0]['Header']);
+        $this->assertEquals('Value 1', $data[0]['Header1']);
+        $this->assertEquals('Value 2', $data[0]['Header2']);
 
         unlink($mergedFilePath);
     }
