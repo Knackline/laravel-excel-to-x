@@ -6,7 +6,7 @@ use Knackline\ExcelTo\ExcelTo;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Support\Collection;
 
-class ExcelToTest extends TestCase
+class ExcelToBasicFeatureTest extends TestCase
 {
     protected function setUp(): void
     {
