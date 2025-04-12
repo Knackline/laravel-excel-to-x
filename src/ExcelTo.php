@@ -8,6 +8,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Illuminate\Support\Collection;
 use finfo;
+use Knackline\ExcelTo\Jobs\ProcessExcelChunk;
 
 class ExcelTo
 {
@@ -122,5 +123,56 @@ class ExcelTo
         [$col, $row] = Coordinate::coordinateFromString($cellAddress);
 
         return $row >= $startRow && $row <= $endRow && $col >= $startCol && $col <= $endCol;
+    }
+
+    /**
+     * Process a large Excel file in chunks
+     *
+     * @param string $filePath Path to the Excel file
+     * @param int $chunkSize Number of rows to process in each chunk
+     * @return array
+     */
+    public static function stream(string $filePath, int $chunkSize = 1000): array
+    {
+        $spreadsheet = self::loadSpreadsheet($filePath);
+        $sheetCount = $spreadsheet->getSheetCount();
+        $result = [];
+
+        foreach ($spreadsheet->getAllSheets() as $worksheet) {
+            $sheetName = $worksheet->getTitle();
+            $totalRows = $worksheet->getHighestRow();
+            $sheetData = [];
+
+            // Get headers from first row
+            $headers = [];
+            $highestColumn = $worksheet->getHighestColumn();
+            for ($col = 'A'; $col <= $highestColumn; $col++) {
+                $headers[] = $worksheet->getCell($col . '1')->getCalculatedValue();
+            }
+
+            // Process data rows in chunks
+            for ($startRow = 2; $startRow <= $totalRows; $startRow += $chunkSize) {
+                $chunk = new ProcessExcelChunk($filePath, $startRow, $chunkSize, $sheetName);
+                $chunkData = $chunk->handle();
+
+                if (!empty($chunkData)) {
+                    foreach ($chunkData as $row) {
+                        $rowData = [];
+                        foreach ($headers as $index => $header) {
+                            $rowData[$header] = $row[$index] ?? null;
+                        }
+                        $sheetData[] = $rowData;
+                    }
+                }
+            }
+
+            if ($sheetCount > 1) {
+                $result[$sheetName] = $sheetData;
+            } else {
+                $result = $sheetData;
+            }
+        }
+
+        return $result;
     }
 }
