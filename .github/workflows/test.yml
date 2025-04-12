@@ -32,11 +32,6 @@ jobs:
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
           composer update --prefer-dist --no-interaction
 
-      - name: Copy .env
-        run: |
-          cp .env.example .env
-          php artisan key:generate
-
       - name: Execute tests
         run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
 
