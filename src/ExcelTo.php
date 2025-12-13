@@ -7,6 +7,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Illuminate\Support\Collection;
+use Knackline\LaravelToon\Toon as ToonConverter;
 use finfo;
 
 class ExcelTo
@@ -45,6 +46,12 @@ class ExcelTo
     public static function array(string $filePath): array
     {
         return self::collection($filePath)->toArray();
+    }
+
+    public static function toon(string $filePath): string
+    {
+        $arrayData = self::array($filePath);
+        return ToonConverter::fromJson($arrayData);
     }
 
     private static function loadSpreadsheet(string $filePath): Spreadsheet
