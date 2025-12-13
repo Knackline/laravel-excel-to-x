@@ -1,6 +1,6 @@
-# Laravel Excel to JSON / Collection / Array
+# Laravel Excel to JSON / Collection / Array / Toon
 
-This Laravel package provides utilities for converting Excel files to JSON format, Laravel Collections, or PHP Arrays. It also supports reading data from multiple sheets within an Excel file.
+This Laravel package provides utilities for converting Excel files to JSON format, Laravel Collections, PHP Arrays, or Toon format. It also supports reading data from multiple sheets within an Excel file.
 
 ## Installation
 
@@ -48,6 +48,18 @@ $arrayData = ExcelTo::array('path/to/your/excel_file.xlsx');
 
 This will return a PHP array containing the Excel data. Similar to JSON and Collection, multiple sheets will be keyed by their names.
 
+### Toon Conversion
+
+To convert an Excel file to Toon format (a compact, AI-Optimized format), use the `toon` method of the `ExcelTo` class:
+
+```php
+use Knackline\ExcelTo\ExcelTo;
+
+$toonData = ExcelTo::toon('path/to/your/excel_file.xlsx');
+```
+
+This will return a Toon format string representing the Excel data. The Toon format is a compact, AI-Optimized format that efficiently represents structured data. When multiple sheets are present, each sheet's data will be organized in the Toon format.
+
 ## Example
 
 ```php
@@ -61,6 +73,9 @@ $collection = ExcelTo::collection('path/to/your/excel_file.xlsx');
 
 // Convert Excel to Array
 $arrayData = ExcelTo::array('path/to/your/excel_file.xlsx');
+
+// Convert Excel to Toon
+$toonData = ExcelTo::toon('path/to/your/excel_file.xlsx');
 ```
 
 ## Requirements
@@ -68,6 +83,7 @@ $arrayData = ExcelTo::array('path/to/your/excel_file.xlsx');
 - PHP >= 8.2
 - Laravel >= 8.x
 - PhpSpreadsheet >= 1.20
+- knackline/laravel-toon >= 1.0
 
 ## Author
 
